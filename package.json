@@ -1,0 +1,9 @@
+{
+  "name": "com.egorlin.disolated",
+  "version": "1.0.0",
+  "displayName": "DIsolated",
+  "description": "DIContainer specified on scopes",
+  "unity": "6000.3",
+  "author": { "name": "EgorLin" },
+  "dependencies": {}
+}
