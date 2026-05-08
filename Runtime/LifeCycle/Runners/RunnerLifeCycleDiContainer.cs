@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EgorLin.Collections.Unsafe;
 using EgorLin.DIsolated.Core;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
