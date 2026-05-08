@@ -1,7 +1,7 @@
 {
   "name": "com.egorlin.disolated",
   "rootNamespace": "EgorLin.DIsolated",
-  "references": [],
+  "references": ["GUID:035131e8c8163ea18905903ca60fc32d"],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
