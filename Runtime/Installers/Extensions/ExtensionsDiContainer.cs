@@ -5,8 +5,7 @@ namespace EgorLin.DIsolated.Installers.Extensions
 {
 	public static class ExtensionsDiContainer
 	{
-		public static void BindInstallerDependencies(this DiContainer diContainer,
-			IEnumerable<IInstallerDependency> dependencies)
+		public static void BindInstallerDependencies(this DiContainer diContainer, IEnumerable<IDependency> dependencies)
 		{
 			foreach (var dependency in dependencies)
 			{
@@ -16,8 +15,7 @@ namespace EgorLin.DIsolated.Installers.Extensions
 			}
 		}
 		
-		public static void BindInstallerData(this DiContainer diContainer,
-			IEnumerable<IInstallerData> installers)
+		public static void BindInstallerData(this DiContainer diContainer, IEnumerable<IInstallerData> installers)
 		{
 			foreach (var installer in installers)
 			{

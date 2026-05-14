@@ -1,0 +1,36 @@
+using EgorLin.DIsolated.Core;
+using EgorLin.DIsolated.Injectors.Factories;
+using EgorLin.DIsolated.Resolvers;
+
+namespace EgorLin.DIsolated.Installers
+{
+	public abstract class InstallerIsolated<TDerived> : InstallerBase where TDerived : InstallerIsolated<TDerived>
+	{
+		public static void Install(DiContainer outerContainer)
+		{
+			var isolatedContainer = new DiContainer(outerContainer);
+
+			var installer = FactoryConstructorDependencies.Create(outerContainer, typeof(TDerived)) as TDerived;
+
+			installer!.InstallBindings(isolatedContainer);
+			GetPublicBindings(isolatedContainer, outerContainer);
+
+			installer!.InstallIsolated(isolatedContainer);
+
+			isolatedContainer.Build();
+		}
+
+		private static void GetPublicBindings(DiContainer isolatedContainer, DiContainer outerContainer)
+		{
+			foreach (var (type, resolvers) in isolatedContainer.Registrations)
+			{
+				foreach (var resolver in resolvers)
+				{
+					outerContainer.AddResolver(type, new ResolverIsolated(resolver));
+				}
+			}
+		}
+
+		public abstract void InstallIsolated(DiContainer diContainer);
+	}
+}

@@ -10,6 +10,17 @@ namespace EgorLin.DIsolated.Core
 	public class DiContainer : IObjectResolver, IDisposable
 	{
         private readonly Dictionary<Type, List<IResolver>> _registrations = new();
+        
+        private readonly DiContainer _parent;
+        
+        public Dictionary<Type, List<IResolver>> Registrations => _registrations;
+
+        public DiContainer() { }
+
+        public DiContainer(DiContainer parent)
+        {
+            _parent = parent;
+        }
 
         public void Bind(TypeBinding typeBinding, Type typeConcrete, params Type[] typeContracts)
         {
@@ -98,10 +109,26 @@ namespace EgorLin.DIsolated.Core
                 instance = lastResolver.Resolve();
                 return true;
             }
+            
+            if (_parent != null)
+            {
+                return _parent.TryResolve(type, out instance);
+            }
 
             instance = null;
             return false;
         }
+        
+        public void AddResolver(Type typeConcrete, IResolver resolver)
+        {
+            if (!_registrations.ContainsKey(typeConcrete))
+            {
+                _registrations.Add(typeConcrete, new List<IResolver>());
+            }
+
+            _registrations[typeConcrete].Add(resolver);
+        }
+
 
         public void Build()
         {
@@ -119,16 +146,6 @@ namespace EgorLin.DIsolated.Core
         public void Dispose()
         {
             RunnerLifeCycleDiContainer.RemoveContainer(this);
-        }
-
-        private void AddResolver(Type typeConcrete, IResolver resolver)
-        {
-            if (!_registrations.ContainsKey(typeConcrete))
-            {
-                _registrations.Add(typeConcrete, new List<IResolver>());
-            }
-
-            _registrations[typeConcrete].Add(resolver);
         }
 
         private bool TryResolveList(Type type, out IReadOnlyList<object> instance)
