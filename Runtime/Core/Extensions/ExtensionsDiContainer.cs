@@ -5,6 +5,11 @@ namespace EgorLin.DIsolated.Core.Extensions
 {
 	public static class ExtensionsDiContainer
 	{
+		public static void Bind<TConcrete>(this DiContainer container, TypeBinding typeBinding)
+		{
+			container.Bind(typeBinding, typeof(TConcrete));
+		}
+		
 		public static void Bind<TConcrete, TContract>(this DiContainer container, TypeBinding typeBinding) where TConcrete : TContract
 		{
 			container.Bind(typeBinding, typeof(TConcrete), typeof(TContract));
@@ -35,6 +40,11 @@ namespace EgorLin.DIsolated.Core.Extensions
 			container.Bind(TypeBinding.Singleton, typeConcrete, typeContracts);
 		}
 		
+		public static void BindSingleton<TConcrete>(this DiContainer container)
+		{
+			container.Bind(TypeBinding.Singleton, typeof(TConcrete));
+		}
+		
 		public static void BindSingleton<TConcrete, TContract>(this DiContainer container) where TConcrete : TContract
 		{
 			container.Bind(TypeBinding.Singleton, typeof(TConcrete), typeof(TContract));
@@ -63,6 +73,11 @@ namespace EgorLin.DIsolated.Core.Extensions
 		public static void BindTransient(this DiContainer container, Type typeConcrete, params Type[] typeContracts)
 		{
 			container.Bind(TypeBinding.Transient, typeConcrete, typeContracts);
+		}
+		
+		public static void BindTransient<TConcrete>(this DiContainer container)
+		{
+			container.Bind(TypeBinding.Transient, typeof(TConcrete));
 		}
 
 		public static void BindTransient<TConcrete, TContract>(this DiContainer container) where TConcrete : TContract

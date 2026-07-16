@@ -1,0 +1,18 @@
+{
+    "name": "com.egorlin.disolated.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0eceaeb7ffa1f3e16a339493785bb798"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

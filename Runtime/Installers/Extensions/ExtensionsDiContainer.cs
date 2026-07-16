@@ -14,13 +14,5 @@ namespace EgorLin.DIsolated.Installers.Extensions
 				diContainer.BindInstance(dependency, type);
 			}
 		}
-		
-		public static void BindInstallerData(this DiContainer diContainer, IEnumerable<IInstallerData> installers)
-		{
-			foreach (var installer in installers)
-			{
-				installer.InstallBindings(diContainer);
-			}
-		}
 	}
 }
