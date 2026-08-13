@@ -1,11 +1,19 @@
+using System;
+using System.Collections.Generic;
 using EgorLin.DIsolated.Core;
 using EgorLin.DIsolated.Injectors.Factories;
+using EgorLin.DIsolated.LifeCycle;
 using EgorLin.DIsolated.Resolvers;
 
 namespace EgorLin.DIsolated.Installers
 {
 	public abstract class InstallerIsolated<TDerived> : InstallerBase where TDerived : InstallerIsolated<TDerived>
 	{
+		private static readonly HashSet<Type> LifecycleTypes = new()
+		{ 
+			typeof(IBootstrap), typeof(ITickable), typeof(IDisposable)
+		};
+		
 		public static void Install(DiContainer outerContainer)
 		{
 			var isolatedContainer = new DiContainer(outerContainer);
@@ -24,6 +32,11 @@ namespace EgorLin.DIsolated.Installers
 		{
 			foreach (var (type, resolvers) in isolatedContainer.Registrations)
 			{
+				if (LifecycleTypes.Contains(type))
+				{
+					continue;
+				}
+				
 				foreach (var resolver in resolvers)
 				{
 					outerContainer.AddResolver(type, new ResolverIsolated(resolver));

@@ -100,8 +100,6 @@ namespace EgorLin.DIsolated.LifeCycle.Runners
 		{
 			foreach (var newContainer in _containersNew)
 			{
-				RunInitializables(newContainer);
-				
 				RunBootstraps(newContainer);
 
 				AddInfo(newContainer);
@@ -161,19 +159,6 @@ namespace EgorLin.DIsolated.LifeCycle.Runners
 			};
 			
 			_infoLifeCycles.Add(infoLifeCycleDi);
-		}
-
-		private static void RunInitializables(DiContainer newContainer)
-		{
-			var hasInitializables = newContainer.TryResolve<IEnumerable<IInitializable>>(out var initializables);
-
-			if (hasInitializables)
-			{
-				foreach (var initializable in initializables)
-				{
-					initializable.Initialize();
-				}
-			}
 		}
 
 		private static void RunBootstraps(DiContainer newContainer)
