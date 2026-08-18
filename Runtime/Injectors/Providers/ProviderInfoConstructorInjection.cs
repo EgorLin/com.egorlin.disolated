@@ -43,7 +43,7 @@ namespace EgorLin.DIsolated.Injectors.Providers
 
         private static InfoConstructorInjection Generate(Type type)
         {
-	        var constructors = type.GetConstructors();
+	        var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
 	        if (constructors.Length == 0)
 	        {

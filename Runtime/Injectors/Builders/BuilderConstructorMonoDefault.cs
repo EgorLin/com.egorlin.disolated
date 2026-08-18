@@ -17,8 +17,9 @@ namespace EgorLin.DIsolated.Injectors.Builders
 		{
             var body = Expression.Convert(Expression.Default(_type), typeof(object));
             var lambda = Expression.Lambda<InfoFactoryConstructor>(body, Expression.Parameter(typeof(object[])));
-            
-            return lambda.Compile();
+            var compiled = lambda.Compile();
+			
+            return compiled(args);
 		}
 	}
 }
