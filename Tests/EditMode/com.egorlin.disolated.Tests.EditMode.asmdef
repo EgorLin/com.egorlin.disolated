@@ -1,0 +1,22 @@
+{
+  "name": "com.egorlin.disolated.Tests.EditMode",
+  "rootNamespace": "EgorLin.DIsolated.Tests",
+  "references": [
+    "com.egorlin.disolated",
+    "com.egorlin.disolated.Tests.Fixtures",
+    "Unity.PerformanceTesting",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

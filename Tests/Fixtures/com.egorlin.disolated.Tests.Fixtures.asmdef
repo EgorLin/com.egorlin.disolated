@@ -1,0 +1,14 @@
+{
+  "name": "com.egorlin.disolated.Tests.Fixtures",
+  "rootNamespace": "EgorLin.DIsolated.Tests.Fixtures",
+  "references": ["com.egorlin.disolated"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
