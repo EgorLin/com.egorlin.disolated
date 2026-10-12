@@ -1,27 +1,18 @@
 using System;
 using System.Reflection;
+using EgorLin.DIsolated.Injectors.Data.Info;
 
 namespace EgorLin.DIsolated.Injectors.Builders
 {
 	internal class BuilderConstructorIL2CPP : IBuilderConstructor
 	{
-		private readonly Type _type;
-		private readonly ConstructorInfo _constructorInfo;
+		private readonly ConstructorInfo _constructor;
 
-		public BuilderConstructorIL2CPP(Type type, ConstructorInfo constructorInfo)
+		public BuilderConstructorIL2CPP(Type type, ConstructorInfo constructor, InfoConstructorParameter[] parameters)
 		{
-			_type = type;
-			_constructorInfo = constructorInfo;
+			_constructor = constructor;
 		}
-		
-		public object Build(params object[] args)
-		{
-			// TODO: this is a really slow operation. Replace on code generation
-			var instance = System.Runtime.Serialization.FormatterServices.GetUninitializedObject(_type);
-			
-			_constructorInfo.Invoke(instance, args);
-			
-			return instance;
-		}
+
+		public object Build(params object[] args) => _constructor.Invoke(args);
 	}
 }

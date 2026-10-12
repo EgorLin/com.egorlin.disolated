@@ -9,7 +9,7 @@ namespace EgorLin.DIsolated.Injectors.Factories
 	{
         public IBuilderConstructor CreateBuilder(Type type, ConstructorInfo constructor, InfoConstructorParameter[] parameters)
         {
-	        return new BuilderConstructorIL2CPP(type, constructor);
+	        return new BuilderConstructorIL2CPP(type, constructor, parameters);
         }
 
         public IBuilderConstructor CreateBuilderDefault(Type type)

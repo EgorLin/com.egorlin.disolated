@@ -28,5 +28,10 @@ namespace EgorLin.DIsolated.Core.Extensions
                 yield return items[i];
             }
         }
+
+        internal static void Clear()
+        {
+            _enumerableCastDelegates.Clear();
+        }
 	}
 }

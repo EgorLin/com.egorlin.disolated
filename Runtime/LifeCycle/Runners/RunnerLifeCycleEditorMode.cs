@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
+using EgorLin.DIsolated.Core.Extensions;
+using EgorLin.DIsolated.Injectors.Providers;
 
 namespace EgorLin.DIsolated.LifeCycle.Runners
 {
@@ -17,6 +19,8 @@ namespace EgorLin.DIsolated.LifeCycle.Runners
 			if (state == PlayModeStateChange.ExitingPlayMode)
 			{
 				RunnerLifeCycleDiContainer.ClearAll();
+				ProviderInfoConstructorInjection.Clear();
+				ExtensionsEnumerable.Clear();
 			}
 		}
 	}

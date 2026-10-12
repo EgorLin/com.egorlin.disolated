@@ -1,4 +1,6 @@
 using UnityEngine;
+using EgorLin.DIsolated.Core.Extensions;
+using EgorLin.DIsolated.Injectors.Providers;
 
 namespace EgorLin.DIsolated.LifeCycle.Runners
 {
@@ -14,6 +16,8 @@ namespace EgorLin.DIsolated.LifeCycle.Runners
 		private static void ResetStatics()
 		{
 			RunnerLifeCycleDiContainer.ClearAll();
+			ProviderInfoConstructorInjection.Clear();
+			ExtensionsEnumerable.Clear();
 		}
 	}
 }

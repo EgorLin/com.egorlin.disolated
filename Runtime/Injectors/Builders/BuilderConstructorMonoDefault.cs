@@ -6,20 +6,15 @@ namespace EgorLin.DIsolated.Injectors.Builders
 {
 	public class BuilderConstructorMonoDefault : IBuilderConstructor
 	{
-		private readonly Type _type;
+		private readonly InfoFactoryConstructor _factory;
 
 		public BuilderConstructorMonoDefault(Type type)
 		{
-			_type = type;
+			_factory = Expression.Lambda<InfoFactoryConstructor>(
+				Expression.Convert(Expression.Default(type), typeof(object)),
+				Expression.Parameter(typeof(object[]))).Compile();
 		}
-		
-		public object Build(params object[] args)
-		{
-            var body = Expression.Convert(Expression.Default(_type), typeof(object));
-            var lambda = Expression.Lambda<InfoFactoryConstructor>(body, Expression.Parameter(typeof(object[])));
-            var compiled = lambda.Compile();
-			
-            return compiled(args);
-		}
+
+		public object Build(params object[] args) => _factory(args);
 	}
 }

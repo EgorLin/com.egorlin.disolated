@@ -31,6 +31,11 @@ namespace EgorLin.DIsolated.Injectors.Providers
 	        return info;
         }
 
+        internal static void Clear()
+        {
+	        Dictionary.Clear();
+        }
+
         private static IFactoryConstructor GetFactory()
         {
 	        return TypeBackendScripting.Current switch

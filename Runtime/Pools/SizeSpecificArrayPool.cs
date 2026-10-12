@@ -49,6 +49,8 @@ namespace EgorLin.DIsolated.Pools
                 {
                     bucket[i] = new T[length];
                 }
+
+                _buckets[length] = bucket;
             }
 
             var array = bucket[indexRental];
@@ -67,7 +69,10 @@ namespace EgorLin.DIsolated.Pools
             }
 
             Array.Clear(array, 0, length);
-            _rentals[length]--;
+            if (_rentals[length] > 0)
+            {
+                _rentals[length]--;
+            }
         }
     }
 }
