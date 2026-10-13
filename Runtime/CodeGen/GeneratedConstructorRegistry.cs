@@ -18,6 +18,8 @@ namespace EgorLin.DIsolated.CodeGen
 			return _entries.TryGetValue(TypeRegistry.GetId(concrete), out entry);
 		}
 
+		internal int Count => _entries.Count;
+
 		internal sealed class Entry
 		{
 			internal readonly Func<DiContainer, object> Factory;

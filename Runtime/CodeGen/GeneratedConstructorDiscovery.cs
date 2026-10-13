@@ -6,9 +6,8 @@ namespace EgorLin.DIsolated.CodeGen
 {
 	internal static class GeneratedConstructorDiscovery
 	{
-		private static readonly GeneratedConstructorRegistry Registry = new GeneratedConstructorRegistry();
+		private static GeneratedConstructorRegistry _registry = new GeneratedConstructorRegistry();
 		private static readonly HashSet<Type> RegisteredProviders = new HashSet<Type>();
-		private static bool _initialized;
 
 		internal static bool Enabled = true;
 
@@ -19,7 +18,55 @@ namespace EgorLin.DIsolated.CodeGen
 				return;
 			}
 
-			provider.RegisterConstructors(Registry);
+			provider.RegisterConstructors(_registry);
+		}
+
+		internal static int RegisterFromAssembly(Assembly assembly)
+		{
+			if (assembly == null)
+			{
+				return 0;
+			}
+
+			object[] attributes;
+
+			try
+			{
+				attributes = assembly.GetCustomAttributes(typeof(GeneratedConstructorProviderAttribute), false);
+			}
+			catch (Exception)
+			{
+				return 0;
+			}
+
+			var registered = 0;
+
+			for (var i = 0; i < attributes.Length; i++)
+			{
+				if (attributes[i] is not GeneratedConstructorProviderAttribute attribute || attribute.ProviderType == null)
+				{
+					continue;
+				}
+
+				if (RegisteredProviders.Contains(attribute.ProviderType))
+				{
+					continue;
+				}
+
+				try
+				{
+					var provider = (IGeneratedConstructorProvider)Activator.CreateInstance(attribute.ProviderType, true);
+
+					Register(provider);
+					registered++;
+				}
+				catch (Exception)
+				{
+					// Ignored: a provider that cannot be created must not break container startup.
+				}
+			}
+
+			return registered;
 		}
 
 		internal static bool TryGet(Type concrete, out GeneratedConstructorRegistry.Entry entry)
@@ -30,75 +77,15 @@ namespace EgorLin.DIsolated.CodeGen
 				return false;
 			}
 
-			EnsureInitialized();
-
-			return Registry.TryGet(concrete, out entry);
+			return _registry.TryGet(concrete, out entry);
 		}
 
-		private static void EnsureInitialized()
+		internal static int RegisteredCount => _registry.Count;
+
+		internal static void Reset()
 		{
-			if (_initialized)
-			{
-				return;
-			}
-
-			_initialized = true;
-
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-			for (var i = 0; i < assemblies.Length; i++)
-			{
-				RegisterAssembly(assemblies[i]);
-			}
-		}
-
-		private static void RegisterAssembly(Assembly assembly)
-		{
-			Type[] types;
-
-			try
-			{
-				types = assembly.GetTypes();
-			}
-			catch (ReflectionTypeLoadException exception)
-			{
-				types = exception.Types;
-			}
-			catch (Exception)
-			{
-				return;
-			}
-
-			for (var i = 0; i < types.Length; i++)
-			{
-				var type = types[i];
-
-				if (type == null || type.IsAbstract || type.IsInterface)
-				{
-					continue;
-				}
-
-				if (!typeof(IGeneratedConstructorProvider).IsAssignableFrom(type))
-				{
-					continue;
-				}
-
-				if (RegisteredProviders.Contains(type))
-				{
-					continue;
-				}
-
-				try
-				{
-					var provider = (IGeneratedConstructorProvider)Activator.CreateInstance(type, true);
-
-					Register(provider);
-				}
-				catch (Exception)
-				{
-					// Ignored: a provider that cannot be created must not break container startup.
-				}
-			}
+			RegisteredProviders.Clear();
+			_registry = new GeneratedConstructorRegistry();
 		}
 	}
 }

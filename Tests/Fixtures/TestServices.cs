@@ -220,6 +220,18 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         public HintOnly() { }
     }
 
+    public sealed class ReflectionOnlyService
+    {
+        public IA A { get; }
+
+        public ReflectionOnlyService(IA a) => A = a;
+    }
+
+    public static class ReflectionOnlyTypes
+    {
+        public static Type Service => typeof(ReflectionOnlyService);
+    }
+
     public sealed class TestBootstrap : IBootstrap
     {
         public int BootCount { get; private set; }
