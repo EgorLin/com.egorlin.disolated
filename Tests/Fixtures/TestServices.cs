@@ -1,4 +1,5 @@
 using System;
+using EgorLin.DIsolated.CodeGen;
 using EgorLin.DIsolated.LifeCycle;
 
 namespace EgorLin.DIsolated.Tests.Fixtures
@@ -12,16 +13,19 @@ namespace EgorLin.DIsolated.Tests.Fixtures
     public interface IFoo { }
     public interface IBar { }
 
+    [GenerateConstructor]
     public sealed class A : IA
     {
         public A() { }
     }
 
+    [GenerateConstructor]
     public sealed class AAlt : IA
     {
         public AAlt() { }
     }
 
+    [GenerateConstructor]
     public sealed class B : IB
     {
         public IA A { get; }
@@ -29,6 +33,7 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         public B(IA a) => A = a;
     }
 
+    [GenerateConstructor]
     public sealed class C : IC
     {
         public IA A { get; }
@@ -41,6 +46,7 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         }
     }
 
+    [GenerateConstructor]
     public sealed class D : ID
     {
         public IB B { get; }
@@ -53,16 +59,19 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         }
     }
 
+    [GenerateConstructor]
     public sealed class MultiContract : IA, IB
     {
         public MultiContract() { }
     }
 
+    [GenerateConstructor]
     public sealed class Service0
     {
         public Service0() { }
     }
 
+    [GenerateConstructor]
     public sealed class Service4
     {
         public IA A { get; }
@@ -79,6 +88,7 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         }
     }
 
+    [GenerateConstructor]
     public sealed class Service8
     {
         public Service8(IA a, IB b, IC c, ID d, IA e, IB f, IC g, ID h)
@@ -103,24 +113,34 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         public ID H { get; }
     }
 
+    [GenerateConstructor]
     public sealed class Chain1 { public Chain1() { } }
 
+    [GenerateConstructor]
     public sealed class Chain2 { public Chain2(Chain1 value) => Value = value; public Chain1 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain3 { public Chain3(Chain2 value) => Value = value; public Chain2 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain4 { public Chain4(Chain3 value) => Value = value; public Chain3 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain5 { public Chain5(Chain4 value) => Value = value; public Chain4 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain6 { public Chain6(Chain5 value) => Value = value; public Chain5 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain7 { public Chain7(Chain6 value) => Value = value; public Chain6 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain8 { public Chain8(Chain7 value) => Value = value; public Chain7 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain9 { public Chain9(Chain8 value) => Value = value; public Chain8 Value { get; } }
 
+    [GenerateConstructor]
     public sealed class Chain10 { public Chain10(Chain9 value) => Value = value; public Chain9 Value { get; } }
 
     public sealed class GenericItem<T> : IItem
@@ -128,6 +148,7 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         public GenericItem() { }
     }
 
+    [GenerateConstructor]
     public sealed class OptionalDependency
     {
         public IA A { get; }
@@ -145,6 +166,13 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         public NeedsNotRegistered(INotRegistered value) { }
     }
 
+    [GenerateConstructor]
+    public sealed class GeneratedNeedsNotRegistered
+    {
+        public GeneratedNeedsNotRegistered(INotRegistered value) { }
+    }
+
+    [GenerateConstructor]
     public sealed class TwoCtor
     {
         public bool UsedDependency { get; }
@@ -159,16 +187,19 @@ namespace EgorLin.DIsolated.Tests.Fixtures
         }
     }
 
+    [GenerateConstructor]
     public struct PlainStruct
     {
         public int Value;
     }
 
+    [GenerateConstructor]
     public sealed class Foo : IFoo
     {
         public Foo() { }
     }
 
+    [GenerateConstructor]
     public sealed class Bar : IBar
     {
         public Bar() { }
@@ -176,6 +207,17 @@ namespace EgorLin.DIsolated.Tests.Fixtures
 
     public sealed class TestDependency
     {
+    }
+
+    [GenerateConstructor]
+    public sealed class AttributedOnly
+    {
+        public AttributedOnly() { }
+    }
+
+    public sealed class HintOnly
+    {
+        public HintOnly() { }
     }
 
     public sealed class TestBootstrap : IBootstrap

@@ -1,5 +1,7 @@
 using System;
+using EgorLin.DIsolated.CodeGen;
 using EgorLin.DIsolated.Core;
+using EgorLin.DIsolated.Injectors.Data.Info;
 using EgorLin.DIsolated.Injectors.Exceptions;
 using EgorLin.DIsolated.Injectors.Providers;
 using EgorLin.DIsolated.Pools;
@@ -14,6 +16,18 @@ namespace EgorLin.DIsolated.Injectors.Factories
 		
 		public static object Create(DiContainer container, Type concrete)
 		{
+            if (GeneratedConstructorDiscovery.TryGet(concrete, out var generated))
+            {
+	            try
+	            {
+		            return generated.Factory(container);
+	            }
+	            catch (Exception exception)
+	            {
+		            throw new ExceptionConstructorInjector(concrete, exception, GetGeneratedParameters(generated.Parameters));
+	            }
+            }
+            
             var info = ProviderInfoConstructorInjection.Get(concrete);
             
             var parametersConstructor = info.ListInfoConstructorParameter;
@@ -52,6 +66,23 @@ namespace EgorLin.DIsolated.Injectors.Factories
             {
 	            ArrayPool.Return(arguments);
             }
-		}
+        }
+
+        private static InfoConstructorParameter[] GetGeneratedParameters(Type[] parameters)
+        {
+	        if (parameters == null || parameters.Length == 0)
+	        {
+		        return Array.Empty<InfoConstructorParameter>();
+	        }
+
+	        var result = new InfoConstructorParameter[parameters.Length];
+
+	        for (var i = 0; i < parameters.Length; i++)
+	        {
+		        result[i] = new InfoConstructorParameter(parameters[i], false, null);
+	        }
+
+	        return result;
+        }
 	}
 }

@@ -1,0 +1,7 @@
+<linker>
+  <assembly fullname="com.egorlin.disolated">
+    <type fullname="EgorLin.DIsolated.CodeGen.IGeneratedConstructorProvider" preserve="all" />
+    <type fullname="EgorLin.DIsolated.CodeGen.GeneratedConstructorRegistry" preserve="all" />
+    <type fullname="EgorLin.DIsolated.CodeGen.GeneratedConstructorDiscovery" preserve="all" />
+  </assembly>
+</linker>
