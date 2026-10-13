@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using EgorLin.DIsolated.Core;
 using EgorLin.DIsolated.Injectors.Factories;
 using EgorLin.DIsolated.LifeCycle;
-using EgorLin.DIsolated.Resolvers;
 
 namespace EgorLin.DIsolated.Installers
 {
@@ -30,7 +29,7 @@ namespace EgorLin.DIsolated.Installers
 
 		private static void GetPublicBindings(DiContainer isolatedContainer, DiContainer outerContainer)
 		{
-			foreach (var (type, resolvers) in isolatedContainer.Registrations)
+			foreach (var (type, resolvers) in isolatedContainer.GetBindings())
 			{
 				if (LifecycleTypes.Contains(type))
 				{
@@ -39,7 +38,7 @@ namespace EgorLin.DIsolated.Installers
 				
 				foreach (var resolver in resolvers)
 				{
-					outerContainer.AddResolver(type, new ResolverIsolated(resolver));
+					outerContainer.AddResolver(type, resolver);
 				}
 			}
 		}

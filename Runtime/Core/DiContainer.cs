@@ -2,181 +2,212 @@ using System;
 using System.Collections.Generic;
 using EgorLin.DIsolated.Core.Data.Types;
 using EgorLin.DIsolated.Core.Extensions;
+using EgorLin.DIsolated.Injectors.Factories;
 using EgorLin.DIsolated.LifeCycle.Runners;
-using EgorLin.DIsolated.Resolvers;
 
 namespace EgorLin.DIsolated.Core
 {
 	public class DiContainer : IObjectResolver, IDisposable
 	{
-        private readonly Dictionary<Type, List<IResolver>> _registrations = new();
-        
-        private readonly DiContainer _parent;
-        
-        public Dictionary<Type, List<IResolver>> Registrations => _registrations;
+		private struct Binding
+		{
+			public Type Contract;
+			public List<Resolver> Resolvers;
+		}
 
-        public DiContainer() { }
+		private Dictionary<int, Binding> _bindings = new Dictionary<int, Binding>();
 
-        public DiContainer(DiContainer parent)
-        {
-            _parent = parent;
-        }
+		private readonly DiContainer _parent;
 
-        public void Bind(TypeBinding typeBinding, Type typeConcrete, params Type[] typeContracts)
-        {
-            var resolver = GetResolver(typeBinding, typeConcrete);
+		public DiContainer() { }
 
-            if (typeContracts.Length == 0)
-            {
-                AddResolver(typeConcrete, resolver);
+		public DiContainer(DiContainer parent)
+		{
+			_parent = parent;
+		}
 
-                return;
-            }
-            
-            foreach (var typeContract in typeContracts)
-            {
-                AddResolver(typeContract, resolver);
-            }
-        }
+		public void Bind(TypeBinding typeBinding, Type typeConcrete, params Type[] typeContracts)
+		{
+			var resolver = GetResolver(typeBinding, typeConcrete);
 
-        public void BindInstance(object instance, Type instanceType)
-        {
-            if (!_registrations.ContainsKey(instanceType))
-            {
-                _registrations.Add(instanceType, new List<IResolver>());
-            }
+			if (typeContracts.Length == 0)
+			{
+				AddResolver(typeConcrete, resolver);
 
-            var resolver = new ResolverSingletonInstance(instance);
-            
-            _registrations[instanceType].Add(resolver);
-        }
+				return;
+			}
 
-        public void BindInstance<TContract>(TContract instance) where TContract : class
-        {
-            var type = typeof(TContract);
-            
-            BindInstance(instance, type);
-        }
+			foreach (var typeContract in typeContracts)
+			{
+				AddResolver(typeContract, resolver);
+			}
+		}
 
-        public T Resolve<T>()
-        {
-            return (T)Resolve(typeof(T));
-        }
+		public void BindInstance(object instance, Type instanceType)
+		{
+			AddResolver(instanceType, new Resolver(instance));
+		}
 
-        public object Resolve(Type type)
-        {
-            if (TryResolve(type, out var instance))
-            {
-                return instance;
-            }
+		public void BindInstance<TContract>(TContract instance) where TContract : class
+		{
+			BindInstance(instance, typeof(TContract));
+		}
 
-            throw new InvalidOperationException($"Type not registered: {type}");
-        }
+		public T Resolve<T>()
+		{
+			var type = typeof(T);
 
-        public bool TryResolve<T>(out T instance) where T : class
-        {
-            var hasResolve = TryResolve(typeof(T), out var newInstance);
+			if (type.IsEnumerable(out _))
+			{
+				return (T)Resolve(type);
+			}
 
-            if (hasResolve)
-            {
-                instance = (T)newInstance;
-                return true;
-            }
+			if (TryResolveId(TypeId<T>.Value, out var instance))
+			{
+				return (T)instance;
+			}
 
-            instance = null;
-            return false;
-        }
+			throw new InvalidOperationException($"Type not registered: {type}");
+		}
 
-        public bool TryResolve(Type type, out object instance)
-        {
-            if (type.IsEnumerable(out var typeEnumerable))
-            {
-                var isResolved = TryResolveList(typeEnumerable, out var enumerable);
+		public object Resolve(Type type)
+		{
+			if (TryResolve(type, out var instance))
+			{
+				return instance;
+			}
 
-                instance = null;
-                if (isResolved)
-                {
-                    instance = enumerable.CastDynamic(typeEnumerable);
-                }
+			throw new InvalidOperationException($"Type not registered: {type}");
+		}
 
-                return isResolved;
-            }
-            
-            if (_registrations.TryGetValue(type, out var resolvers))
-            {
-                var lastResolver = resolvers[^1];
-                
-                instance = lastResolver.Resolve();
-                return true;
-            }
-            
-            if (_parent != null)
-            {
-                return _parent.TryResolve(type, out instance);
-            }
+		public bool TryResolve<T>(out T instance) where T : class
+		{
+			var hasResolve = TryResolve(typeof(T), out var newInstance);
 
-            instance = null;
-            return false;
-        }
-        
-        public void AddResolver(Type typeConcrete, IResolver resolver)
-        {
-            if (!_registrations.ContainsKey(typeConcrete))
-            {
-                _registrations.Add(typeConcrete, new List<IResolver>());
-            }
+			if (hasResolve)
+			{
+				instance = (T)newInstance;
+				return true;
+			}
 
-            _registrations[typeConcrete].Add(resolver);
-        }
+			instance = null;
+			return false;
+		}
 
+		public bool TryResolve(Type type, out object instance)
+		{
+			if (type.IsEnumerable(out var typeEnumerable))
+			{
+				var isResolved = TryResolveList(typeEnumerable, out var enumerable);
 
-        public void Build()
-        {
-            BindInstance(this, typeof(IObjectResolver));
-            BindInstance(this, typeof(DiContainer));
-            
-            RunnerLifeCycleDiContainer.AddContainer(this);
-        }
+				instance = null;
+				if (isResolved)
+				{
+					instance = enumerable.CastDynamic(typeEnumerable);
+				}
 
-        public void Clear()
-        {
-            _registrations.Clear();
-        }
+				return isResolved;
+			}
 
-        public void Dispose()
-        {
-            RunnerLifeCycleDiContainer.RemoveContainer(this);
-        }
+			return TryResolveId(TypeRegistry.GetId(type), out instance);
+		}
 
-        private bool TryResolveList(Type type, out IReadOnlyList<object> instance)
-        {
-            if (_registrations.TryGetValue(type, out var resolvers))
-            {
-                var countResolvers = resolvers.Count;
-                var objects = new List<object>(countResolvers);
+		internal void AddResolver(Type typeConcrete, Resolver resolver)
+		{
+			var id = TypeRegistry.GetId(typeConcrete);
 
-                for (int indexObject = 0; indexObject < countResolvers; indexObject++)
-                {
-                    objects.Add(resolvers[indexObject].Resolve());
-                }
+			if (!_bindings.TryGetValue(id, out var binding))
+			{
+				binding = new Binding
+				{
+					Contract = typeConcrete,
+					Resolvers = new List<Resolver>(1)
+				};
 
-                instance = objects;
-                return true;
-            }
+				_bindings.Add(id, binding);
+			}
 
-            instance = null;
-            return false;
-        }
+			binding.Resolvers.Add(resolver);
+		}
 
-        private IResolver GetResolver(TypeBinding typeBinding, Type type)
-        {
-            IResolver resolver = typeBinding switch 
-            {
-                TypeBinding.Singleton => new ResolverSingletonType(type, this),
-                TypeBinding.Transient => new ResolverTransientType(type, this),
-                _ => throw new ArgumentOutOfRangeException(nameof(typeBinding), typeBinding, null)
-            };
-            return resolver;
-        }
-    }
+		public void Build()
+		{
+			BindInstance(this, typeof(IObjectResolver));
+			BindInstance(this, typeof(DiContainer));
+
+			RunnerLifeCycleDiContainer.AddContainer(this);
+		}
+
+		public void Clear()
+		{
+			_bindings = new Dictionary<int, Binding>();
+		}
+
+		public void Dispose()
+		{
+			RunnerLifeCycleDiContainer.RemoveContainer(this);
+		}
+
+		internal IEnumerable<(Type Type, List<Resolver> Resolvers)> GetBindings()
+		{
+			foreach (var pair in _bindings)
+			{
+				yield return (pair.Value.Contract, pair.Value.Resolvers);
+			}
+		}
+
+		private bool TryResolveId(int id, out object instance)
+		{
+			if (_bindings.TryGetValue(id, out var binding))
+			{
+				instance = binding.Resolvers[^1].Resolve();
+				return true;
+			}
+
+			if (_parent != null)
+			{
+				return _parent.TryResolveId(id, out instance);
+			}
+
+			instance = null;
+			return false;
+		}
+
+		private bool TryResolveList(Type type, out IReadOnlyList<object> instance)
+		{
+			var id = TypeRegistry.GetId(type);
+
+			if (_bindings.TryGetValue(id, out var binding))
+			{
+				var resolvers = binding.Resolvers;
+				var objects = new List<object>(resolvers.Count);
+
+				for (var i = 0; i < resolvers.Count; i++)
+				{
+					objects.Add(resolvers[i].Resolve());
+				}
+
+				instance = objects;
+				return true;
+			}
+
+			instance = null;
+			return false;
+		}
+
+		private Resolver GetResolver(TypeBinding typeBinding, Type type)
+		{
+			switch (typeBinding)
+			{
+				case TypeBinding.Singleton:
+					return new Resolver(this, type, true);
+
+				case TypeBinding.Transient:
+					return new Resolver(this, type, false);
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(typeBinding), typeBinding, null);
+			}
+		}
+	}
 }
